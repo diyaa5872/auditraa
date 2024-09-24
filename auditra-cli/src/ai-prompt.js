@@ -1,6 +1,6 @@
-const OpenAI= require('openai');
+import OpenAI from 'openai';
 
-const analyzeContract= async(contract,apiKey)=>{
+export const analyzeContract= async(contract,apiKey)=>{//added export word here
     const openai = new OpenAI({
         apiKey: apiKey,
     });
@@ -9,7 +9,7 @@ const analyzeContract= async(contract,apiKey)=>{
         model: 'gpt-3.5-turbo',
         messages:[
             {
-                roles: 'user',
+                role: 'user',//chnaged roles to role here
                 content: `
                    Your role and goal is to be an AI smart contract auditoy. your job is to perform an audit. your job is to give smart contract: ${contract}
 
@@ -75,7 +75,5 @@ const analyzeContract= async(contract,apiKey)=>{
 
     console.log("\nSuggestions for improvemnet");
     console.log(auditResults.find((r)=>r.section==='Suggestions for improvement').details)
-
-    module.exports={analyzeContract};
     
 }

@@ -1,16 +1,27 @@
 {
   "name": "auditra-cli",
   "version": "1.0.0",
+  "description": "A CLI tool to audit smart contracts using openai",
   "main": "index.js",
+  "bin": {
+    "auditai": "./index.js"
+  },
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "type": "module",
+  "keywords": [
+    "cli",
+    "audit",
+    "smart contract",
+    "openai"
+  ],
+  "author": "Diya Dhankhar",
+  "license": "MIT",
   "dependencies": {
     "commander": "^12.1.0",
+    "dotenv": "^16.4.5",
     "inquirer": "^11.0.2",
     "openai": "^4.63.0"
   }
