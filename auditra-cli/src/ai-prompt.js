@@ -1,11 +1,11 @@
 import axios from 'axios';
+import https from 'https';
 
 export const analyzeContract = async (contract, apiKey) => {
-
   process.env.NODE_OPTIONS = '--tls-min-v1.2';
 
   const params = {
-    model: "gpt-3.5-turbo",  // or whatever model TogetherAI uses
+    model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
     messages: [
       {
         role: "user",
@@ -55,34 +55,126 @@ export const analyzeContract = async (contract, apiKey) => {
     ],
   };
 
+  const agent = new https.Agent({
+    rejectUnauthorized: false,
+    secureProtocol: 'TLSv1_2_method',
+  });
+
   try {
-    const response = await axios.post('https://api.togetherai.com/analyze', params, {
+    const response = await axios.post('https://api.together.xyz/v1/chat/completions', params, {
+      httpsAgent: agent,
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
     });
 
-    const auditResults = response.data; // Adjust according to the response structure
+    // Log the entire response to inspect its structure
+    //console.log('Response from TogetherAI:', response.data);
 
-    console.log("Audit Report:");
-    console.log(auditResults.find((r) => r.section === "Audit Report").details);
+    // Extract the content from the response
+    const auditResults = response.data.choices[0].message.content;
 
-    console.log("\nMetric Scores:");
-    auditResults
-      .find((r) => r.section === "Metric Scores")
-      .details.forEach((metric) => {
-        console.log(`${metric.metric}: ${metric.score}/10`);
-      });
+    // Log the raw content to inspect it
+    //console.log('Raw audit results:', auditResults);
 
-    console.log("\nSuggestions for Improvement:");
-    console.log(
-      auditResults.find((r) => r.section === "Suggestions for Improvement").details
-    );
+    // Remove the JSON parsing logic and just print the raw results
+    // Ensure to trim the string if necessary
+    const trimmedResults = auditResults.trim();
+    console.log(trimmedResults); // This will print only the raw results
   } catch (error) {
     console.error('Error calling TogetherAI API:', error.response ? error.response.data : error.message);
   }
 };
+
+
+// import axios from 'axios';
+
+// export const analyzeContract = async (contract, apiKey) => {
+
+//   process.env.NODE_OPTIONS = '--tls-min-v1.2';
+
+//   const params = {
+//     model: "gpt-3.5-turbo",  // or whatever model TogetherAI uses
+//     messages: [
+//       {
+//         role: "user",
+//         content: `Your role and goal is to be an AI Smart Contract Auditor. Your job is to perform an audit on the given smart contract. Here is the smart contract: ${contract}.
+//         Please provide the results in the following array format for easy front-end display:
+//         [
+//           {
+//             "section": "Audit Report",
+//             "details": "A detailed audit report of the smart contract, covering security, performance, and any other relevant aspects."
+//           },
+//           {
+//             "section": "Metric Scores",
+//             "details": [
+//               {
+//                 "metric": "Security",
+//                 "score": 0  // Replace with actual score logic
+//               },
+//               {
+//                 "metric": "Performance",
+//                 "score": 0  // Replace with actual score logic
+//               },
+//               {
+//                 "metric": "Other Key Areas",
+//                 "score": 0  // Replace with actual score logic
+//               },
+//               {
+//                 "metric": "Gas Efficiency",
+//                 "score": 0  // Replace with actual score logic
+//               },
+//               {
+//                 "metric": "Code Quality",
+//                 "score": 0  // Replace with actual score logic
+//               },
+//               {
+//                 "metric": "Documentation",
+//                 "score": 0  // Replace with actual score logic
+//               }
+//             ]
+//           },
+//           {
+//             "section": "Suggestions for Improvement",
+//             "details": "Suggestions for improving the smart contract in terms of security, performance, and any other identified weaknesses."
+//           }
+//         ]
+//         Thank you.`,
+//       },
+//     ],
+//   };
+
+//   try {
+//     const response = await axios.post('https://api.togetherai.com/analyze', params, {
+//       headers: {
+//         'Authorization': `Bearer ${apiKey}`,
+//         'Content-Type': 'application/json',
+//         'User-Agent': 'Auditra-cli',
+//         'rejectUnauthorized': 'false'
+//       },
+//     });
+
+//     const auditResults = response.data; // Adjust according to the response structure
+
+//     console.log("Audit Report:");
+//     console.log(auditResults.find((r) => r.section === "Audit Report").details);
+
+//     console.log("\nMetric Scores:");
+//     auditResults
+//       .find((r) => r.section === "Metric Scores")
+//       .details.forEach((metric) => {
+//         console.log(`${metric.metric}: ${metric.score}/10`);
+//       });
+
+//     console.log("\nSuggestions for Improvement:");
+//     console.log(
+//       auditResults.find((r) => r.section === "Suggestions for Improvement").details
+//     );
+//   } catch (error) {
+//     console.error('Error calling TogetherAI API:', error.response ? error.response.data : error.message);
+//   }
+// };
 
 
 // import OpenAI from 'openai';
