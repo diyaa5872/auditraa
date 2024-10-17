@@ -10,14 +10,19 @@ export const analyzeContract = async (
 
   const apiKey = process.env.NEXT_PUBLIC_API_KEY;
 
+  // Sanitize the contract string
+  const sanitizedContract = contract
+    .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
+    .replace(/[\n\t]/g, ' ') // Replace newlines and tabs with spaces
+    .replace(/"/g, '\\"') // Escape double quotes
+    .trim();
+
   const params = {
     model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
     messages: [
       {
         role: "user",
-        content: `Your role and goal is to be an AI Smart Contract Auditor. Your job is to perform an audit on the given smart contract. Here is the smart contract: ${contract}.
-        
-        Please provide the results in the following array format for easy front-end display:
+        content: `Your role is to act as an AI Smart Contract Auditor. Please perform an audit on the following smart contract and provide the results strictly in the following array format:
 
         [
           {
@@ -29,37 +34,37 @@ export const analyzeContract = async (
             "details": [
               {
                 "metric": "Security",
-                "score": 0-10
+                "score": 0
               },
               {
                 "metric": "Performance",
-                "score": 0-10
+                "score": 0
               },
               {
                 "metric": "Other Key Areas",
-                "score": 0-10
+                "score": 0
               },
               {
                 "metric": "Gas Efficiency",
-                "score": 0-10
+                "score": 0
               },
               {
                 "metric": "Code Quality",
-                "score": 0-10
+                "score": 0
               },
               {
                 "metric": "Documentation",
-                "score": 0-10
+                "score": 0
               }
             ]
           },
           {
             "section": "Suggestions for Improvement",
-            "details": "Suggestions for improving the smart contract in terms of security, performance, and any other identified weaknesses."
+            "details": "Suggestions for improving the smart contract in terms of security and performance and any other identified weaknesses"
           }
         ]
-        
-        Thank you.`,
+
+        Here is the smart contract: ${sanitizedContract}. Please do not include any additional text or context outside of the JSON array format. Thank you.`,
       },
     ],
   };
@@ -78,27 +83,39 @@ export const analyzeContract = async (
       },
     });
 
-    // Log the raw response data to inspect what is returned
-    //console.log('Raw response:', response.data);
-
-    // Try to parse response data only if it looks like valid JSON
     const content = response.data.choices[0].message.content;
+    console.log("Raw API Response:", content); // Log the raw API response for debugging
 
-    // Check if the content starts with '{' or '[' which indicates a valid JSON structure
-    if (content.trim().startsWith('{') || content.trim().startsWith('[')) {
-      const auditResults = JSON.parse(content);
+    // Use regex to extract a valid JSON array from the response
+    const match = content.match(/(\[.*?\])/s); // Match the first occurrence of a JSON array
 
-      // Additional check to ensure auditResults is an array
-      if (Array.isArray(auditResults)) {
-        setResults(auditResults);
-      } else {
-        console.error('Parsed content is not an array:', auditResults);
-        setResults({ error: 'Parsed content is not an array', content });
+    if (match) {
+      const jsonArrayString = match[0].trim(); // Extract the matched JSON array string
+      console.log("JSON String Before Parsing:", jsonArrayString);
+
+      try {
+        const auditResults = JSON.parse(jsonArrayString); // Attempt to parse the extracted string
+
+        // Extract the "Audit Report" section
+        const auditReport = Array.isArray(auditResults)
+          ? auditResults.find((r: any) => r.section === "Audit Report")
+          : null;
+
+        console.log("Audit Report:", auditReport);
+
+        if (auditReport) {
+          setResults(auditReport.details);  // Only output the audit report details
+        } else {
+          setResults({ error: 'Audit report section not found', content });
+        }
+      } catch (error) {
+        const parseError = error as Error;
+        console.error('Error parsing JSON:', parseError.message);
+        setResults({ error: 'Error parsing JSON', message: parseError.message });
       }
     } else {
-      // If not valid JSON, show the raw response for debugging purposes
-      console.error('API returned non-JSON content:', content);
-      setResults({ error: 'API returned non-JSON content', content });
+      console.error('No valid JSON array found in response:', content);
+      setResults({ error: 'No valid JSON array found in response', content });
     }
   } catch (error: any) {
     console.error('Error calling TogetherAI API:', error.response ? error.response.data : error.message);
@@ -119,16 +136,21 @@ export const analyzeContract = async (
 // ) => {
 //   setLoading(true);
 
-//   const apiKey=process.env.NEXT_PUBLIC_API_KEY;
+//   const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+
+//   // Sanitize the contract string to remove control characters, newlines, and tabs
+//   const sanitizedContract = contract
+//     .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
+//     .replace(/[\n\t]/g, ' ') // Replace newlines and tabs with spaces
+//     .replace(/"/g, '\\"') // Escape double quotes
+//     .trim();
 
 //   const params = {
 //     model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
 //     messages: [
 //       {
 //         role: "user",
-//         content: `Your role and goal is to be an AI Smart Contract Auditor. Your job is to perform an audit on the given smart contract. Here is the smart contract: ${contract}.
-        
-//         Please provide the results in the following array format for easy front-end display:
+//         content: `Your role is to act as an AI Smart Contract Auditor. Please perform an audit on the following smart contract and provide the results strictly in the following array format:
 
 //         [
 //           {
@@ -140,37 +162,37 @@ export const analyzeContract = async (
 //             "details": [
 //               {
 //                 "metric": "Security",
-//                 "score": 0-10
+//                 "score": 0
 //               },
 //               {
 //                 "metric": "Performance",
-//                 "score": 0-10
+//                 "score": 0
 //               },
 //               {
 //                 "metric": "Other Key Areas",
-//                 "score": 0-10
+//                 "score": 0
 //               },
 //               {
 //                 "metric": "Gas Efficiency",
-//                 "score": 0-10
+//                 "score": 0
 //               },
 //               {
 //                 "metric": "Code Quality",
-//                 "score": 0-10
+//                 "score": 0
 //               },
 //               {
 //                 "metric": "Documentation",
-//                 "score": 0-10
+//                 "score": 0
 //               }
 //             ]
 //           },
 //           {
 //             "section": "Suggestions for Improvement",
-//             "details": "Suggestions for improving the smart contract in terms of security, performance, and any other identified weaknesses."
+//             "details": "Suggestions for improving the smart contract in terms of security and performance and any other identified weaknesses"
 //           }
 //         ]
-        
-//         Thank you.`,
+
+//         Here is the smart contract: ${sanitizedContract}. Please do not include any additional text or context outside of the JSON array format. Thank you.`,
 //       },
 //     ],
 //   };
@@ -184,15 +206,49 @@ export const analyzeContract = async (
 //     const response = await axios.post('https://api.together.xyz/v1/chat/completions', params, {
 //       httpsAgent: agent,
 //       headers: {
-//         'Authorization': `Bearer ${apiKey}`,
+//         Authorization: `Bearer ${apiKey}`,
 //         'Content-Type': 'application/json',
 //       },
 //     });
 
-//     const auditResults = JSON.parse(response.data.choices[0].message.content);
-//     setResults(auditResults);
+//     const content = response.data.choices[0].message.content;
+//     console.log("Raw API Response:", content); // Log the raw API response for debugging
+
+//     // Use regex to extract a valid JSON array from the response
+//     const match = content.match(/\[(.*?)\]/s); // Match the first occurrence of a JSON array
+
+//     if (match) {
+//       const jsonArrayString = match[0].trim(); // Extract the matched JSON array string
+//       console.log("JSON String Before Parsing:", jsonArrayString);
+
+//       try {
+//         const auditResults = JSON.parse(jsonArrayString); // Attempt to parse the extracted string
+
+//         // Extract the "Audit Report" section
+//         const auditReport = Array.isArray(auditResults)
+//           ? auditResults.find((r: any) => r.section === "Audit Report")
+//           : null;
+
+//         console.log("Audit Report:", auditReport);
+
+//         if (auditReport) {
+//           setResults(auditReport.details);  // Only output the audit report details
+//         } else {
+//           setResults({ error: 'Audit report section not found', content });
+//         }
+//       } catch (error) {
+//         // Type assertion to access error properties safely
+//         const parseError = error as Error; // Assert the type to Error
+//         console.error('Error parsing JSON:', parseError.message); // Access the message property
+//         setResults({ error: 'Error parsing JSON', message: parseError.message });
+//       }
+//     } else {
+//       console.error('No valid JSON array found in response:', content);
+//       setResults({ error: 'No valid JSON array found in response', content });
+//     }
 //   } catch (error: any) {
 //     console.error('Error calling TogetherAI API:', error.response ? error.response.data : error.message);
+//     setResults({ error: 'Error calling API', message: error.message });
 //   } finally {
 //     setLoading(false);
 //   }

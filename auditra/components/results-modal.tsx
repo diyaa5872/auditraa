@@ -4,7 +4,10 @@ import {
   IconChecklist,
   IconChevronDown,
   IconChevronUp,
+  IconCircleCheck,
+  IconGauge,
 } from "@tabler/icons-react";
+import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 
 interface ResultsModalProps {
   isOpen: boolean;
@@ -40,6 +43,14 @@ const ResultsModal: React.FC<ResultsModalProps> = ({
   // Check if results is defined and is an array
   const auditReport = results && Array.isArray(results)
     ? results.find((r: any) => r.section === "Audit Report")
+    : null;
+
+  const metricScores = results && Array.isArray(results)
+    ? results.find((r: any) => r.section === "Metric Scores")
+    : null;
+
+  const suggestions = results && Array.isArray(results)
+    ? results.find((r: any) => r.section === "Suggestions for Improvement")
     : null;
 
   return (
@@ -87,6 +98,7 @@ const ResultsModal: React.FC<ResultsModalProps> = ({
                     Audit Results
                   </h2>
                 </div>
+                {/* Audit Report Section */}
                 <div className="text-left">
                   <h3
                     className="text-xl space-x-2 cursor-pointer flex items-center justify-between mb-4 dark:text-gray-200"
@@ -102,25 +114,58 @@ const ResultsModal: React.FC<ResultsModalProps> = ({
                       <IconChevronDown size={24} />
                     )}
                   </h3>
-                  {expandedSection === "auditReport" && auditReport && (
-                    <div>
-                      {/* Assuming details can be a string or array of MetricScore */}
-                      {typeof auditReport.details === "string" ? (
-                        <p className="text-base text-gray-700 dark:text-gray-300">
-                          {auditReport.details}
-                        </p>
-                      ) : (
-                        <ul className="text-base text-gray-700 dark:text-gray-300">
-                          {auditReport.details.map((metric: MetricScore, index: number) => (
-                            <li key={index}>
-                              {metric.metric}: {metric.score}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
+                  {expandedSection === "auditReport" && (
+                    <p className="text-base text-gray-300">
+                      {auditReport ? auditReport.details : "No details available."}
+                    </p>
+                  )}
+                </div>
+                {/* Metric Scores Section */}
+                <div className="text-left">
+                  <h3
+                    className="text-xl space-x-2 cursor-pointer flex items-center justify-between mb-4 dark:text-gray-200"
+                    onClick={() => toggleSection("metricScores")}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <IconGauge size={24} />
+                      <span>Metric Scores</span>
+                    </div>
+                    {expandedSection === "metricScores" ? (
+                      <IconCircleCheck size={24} />
+                    ) : (
+                      <IconCircleCheck size={24} />
+                    )}
+                  </h3>
+                  {expandedSection === "metricScores" && (
+                    <div className="grid grid-col-1 md:grid-col-3 gap-6">
+                      {metricScores && metricScores.details.map((metric: MetricScore, metricIndex: number) => {
+                        let color;
+                        if (metric.score >= 8) color = '#4cef50';
+                        else if (metric.score < 5) color = "#f44336";
+                        else color = "#ffeb3b";
+
+                        return (
+                          <div key={metricIndex} className="flex flex-col items-center">
+                            <div className="w-24 b-24">
+                              <CircularProgressbar
+                                value={metric.score * 10}
+                                text={`${metric.score}/10`}
+                                strokeWidth={10}
+                                styles={buildStyles({
+                                  textSize: '16px',
+                                  pathColor: color,
+                                  textColor: color,
+                                  trailColor: '#d6d6d6',
+                                })}
+                              />
+                            </div>
+                          </div>
+                        )
+                      })}
                     </div>
                   )}
                 </div>
+                {/* Suggestions for Improvement Section */}
                 <div className="text-left">
                   <h3
                     className="text-xl space-x-2 cursor-pointer flex items-center justify-between mb-4 dark:text-gray-200"
@@ -136,11 +181,16 @@ const ResultsModal: React.FC<ResultsModalProps> = ({
                       <IconChevronDown size={24} />
                     )}
                   </h3>
-                  {expandedSection === "suggestions" && auditReport && (
-                    <p className="text-base text-gray-700 dark:text-gray-300">
-                      {auditReport.details}
+                  {expandedSection === "suggestions" && (
+                    <p className="text-base text-gray-300">
+                      {suggestions ? suggestions.details : "No suggestions available."}
                     </p>
                   )}
+                </div>
+                <div className="flex justify-end">
+                  <button onClick={closeModal} className="text-red-500">
+                    Close
+                  </button>
                 </div>
               </div>
             </div>
@@ -160,13 +210,26 @@ export default ResultsModal;
 //   IconChecklist,
 //   IconChevronDown,
 //   IconChevronUp,
+//   IconCircleCheck,
+//   IconGauge,
 // } from "@tabler/icons-react";
+// import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 
 // interface ResultsModalProps {
 //   isOpen: boolean;
 //   closeModal: () => void;
 //   loading: boolean;
-//   results: any;
+//   results: any; // Consider typing this more specifically if possible
+// }
+
+// interface MetricScore {
+//   metric: string;
+//   score: number;
+// }
+
+// interface AuditReportSection {
+//   section: string;
+//   details: string | MetricScore[];
 // }
 
 // const ResultsModal: React.FC<ResultsModalProps> = ({
@@ -242,16 +305,63 @@ export default ResultsModal;
 //                       <IconChecklist size={24} />
 //                       <span>Audit Report</span>
 //                     </div>
-//                     {expandedSection === "auditReport" ? (
+//                     {expandedSection==="auditReport" ? (
 //                       <IconChevronUp size={24} />
-//                     ) : (
+//                     ):(
 //                       <IconChevronDown size={24} />
 //                     )}
 //                   </h3>
-//                   {expandedSection === "auditReport" && auditReport && (
-//                     <p className="text-base text-gray-700 dark:text-gray-300">
-//                       {auditDetails}
+//                   {expandedSection === "auditReport" && (
+//                     <p className="text-base text-gray-300">
+//                       {results.find((r:any)=> r.section == "Audit Report").details}
 //                     </p>
+//                   )}
+//                 </div>
+//                 <div className="text-left">
+//                   <h3
+//                     className="text-xl space-x-2 cursor-pointer flex items-center justify-between mb-4 dark:text-gray-200"
+//                     onClick={() => toggleSection("metricScores")}
+//                   >
+//                     <div className="flex items-center space-x-2">
+//                       <IconGauge size={24} />
+//                       <span>Metric Scores</span>
+//                     </div>
+//                     {expandedSection==="metricScores" ? (
+//                       <IconCircleCheck size={24} />
+//                     ):(
+//                       <IconCircleCheck size={24} />
+//                     )}
+//                   </h3>
+//                   {expandedSection === "metricScores" && (            
+//                     <div className="grid grid-col-1 md:grid-col-3 gap-6">
+//                       {results.find((r:any)=> r.section === 'Metric Scores').details.map((metric: any,metricIndex:number)=>{
+//                         let color;
+//                         if(metric.score>=8) color= '#4cef50';
+//                         else if(metric.score<5) color= "#f44336";
+//                         else color= "#ffeb3b";
+
+//                         return  (
+//                           <div 
+//                           key={metricIndex}
+//                           className="flex flex-col items-center"
+//                           >
+//                             <div className="w-24 b-24">
+//                               <CircularProgressbar 
+//                               value={metric.score*10}
+//                               text={`${metric.score}/10`}
+//                               strokeWidth={10}
+//                               styles={buildStyles({
+//                                 textSize:'16px',
+//                                 pathColor: color,
+//                                 textColor: color,
+//                                 trailColor: '#d6d6d6d'
+//                               })}
+//                               />
+//                             </div>
+//                           </div>
+//                         )
+//                       })}
+//                     </div>
 //                   )}
 //                 </div>
 //                 <div className="text-left">
@@ -263,17 +373,22 @@ export default ResultsModal;
 //                       <IconChecklist size={24} />
 //                       <span>Suggestions for Improvement</span>
 //                     </div>
-//                     {expandedSection === "suggestions" ? (
+//                     {expandedSection==="Suggestions for Improvement" ? (
 //                       <IconChevronUp size={24} />
-//                     ) : (
+//                     ):(
 //                       <IconChevronDown size={24} />
 //                     )}
 //                   </h3>
-//                   {expandedSection === "suggestions" && auditReport && (
-//                     <p className="text-base text-gray-700 dark:text-gray-300">
-//                       {auditReport.details}
+//                   {expandedSection === "Suggestions for Improvement" && (
+//                     <p className="text-base text-gray-300">
+//                       {results.find((r:any)=> r.section == "Suggestions for Improvement").details}
 //                     </p>
 //                   )}
+//                 </div>
+//                 <div className="flex justify-end">
+//                   <button onClick={closeModal} className="text-red-500">
+//                     Close
+//                   </button>
 //                 </div>
 //               </div>
 //             </div>
@@ -285,3 +400,5 @@ export default ResultsModal;
 // };
 
 // export default ResultsModal;
+
+
