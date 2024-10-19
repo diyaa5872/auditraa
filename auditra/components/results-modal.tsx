@@ -41,17 +41,20 @@ const ResultsModal: React.FC<ResultsModalProps> = ({
   };
 
   // Check if results is defined and is an array
-  const auditReport = results && Array.isArray(results)
-    ? results.find((r: any) => r.section === "Audit Report")
-    : null;
+  const auditReport =
+    results && Array.isArray(results)
+      ? results.find((r: any) => r.section === "Audit Report")
+      : null;
 
-  const metricScores = results && Array.isArray(results)
-    ? results.find((r: any) => r.section === "Metric Scores")
-    : null;
+  const metricScores =
+    results && Array.isArray(results)
+      ? results.find((r: any) => r.section === "Metric Scores")
+      : null;
 
-  const suggestions = results && Array.isArray(results)
-    ? results.find((r: any) => r.section === "Suggestions for Improvement")
-    : null;
+  const suggestions =
+    results && Array.isArray(results)
+      ? results.find((r: any) => r.section === "Suggestions for Improvement")
+      : null;
 
   return (
     <Dialog
@@ -60,7 +63,10 @@ const ResultsModal: React.FC<ResultsModalProps> = ({
       className="fixed z-10 inset-0 overflow-y-auto"
     >
       <div className="flex items-center justify-center min-h-screen px-4 text-center">
-        <div className="fixed inset-0 bg-black opacity-50" aria-hidden="true"></div>
+        <div
+          className="fixed inset-0 bg-black opacity-50"
+          aria-hidden="true"
+        ></div>
         {loading ? (
           <div className="bg-white dark:bg-neutral-900 rounded-2xl overflow-hidden z-50 shadow-xl transform transition-all max-w-lg w-full p-8 space-y-8">
             <div className="flex py-14 flex-col items-center">
@@ -116,7 +122,9 @@ const ResultsModal: React.FC<ResultsModalProps> = ({
                   </h3>
                   {expandedSection === "auditReport" && (
                     <p className="text-base text-gray-300">
-                      {auditReport ? auditReport.details : "No details available."}
+                      {auditReport
+                        ? auditReport.details
+                        : "No details available."}
                     </p>
                   )}
                 </div>
@@ -137,31 +145,43 @@ const ResultsModal: React.FC<ResultsModalProps> = ({
                     )}
                   </h3>
                   {expandedSection === "metricScores" && (
-                    <div className="grid grid-col-1 md:grid-col-3 gap-6">
-                      {metricScores && metricScores.details.map((metric: MetricScore, metricIndex: number) => {
-                        let color;
-                        if (metric.score >= 8) color = '#4cef50';
-                        else if (metric.score < 5) color = "#f44336";
-                        else color = "#ffeb3b";
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {metricScores &&
+                        metricScores.details.map(
+                          (metric: MetricScore, metricIndex: number) => {
+                            let color;
+                            if (metric.score >= 8) color = "#4cef50";
+                            else if (metric.score < 5) color = "#f44336";
+                            else color = "#ffeb3b";
 
-                        return (
-                          <div key={metricIndex} className="flex flex-col items-center">
-                            <div className="w-24 b-24">
-                              <CircularProgressbar
-                                value={metric.score * 10}
-                                text={`${metric.score}/10`}
-                                strokeWidth={10}
-                                styles={buildStyles({
-                                  textSize: '16px',
-                                  pathColor: color,
-                                  textColor: color,
-                                  trailColor: '#d6d6d6',
-                                })}
-                              />
-                            </div>
-                          </div>
-                        )
-                      })}
+                            return (
+                              <div
+                                key={metricIndex}
+                                className="flex flex-col items-center"
+                              >
+                                <div className="flex flex-col items-center">
+                                  {/* Display the metric name */}
+                                  <span className="text-base text-gray-700 dark:text-gray-200 mb-2">
+                                    {metric.metric}
+                                  </span>
+                                  <div className="w-24 h-24">
+                                    <CircularProgressbar
+                                      value={metric.score}
+                                      text={`${metric.score}/100`}
+                                      strokeWidth={10}
+                                      styles={buildStyles({
+                                        textSize: "13px",
+                                        pathColor: color,
+                                        textColor: color,
+                                        trailColor: "#d6d6d6",
+                                      })}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          }
+                        )}
                     </div>
                   )}
                 </div>
@@ -183,7 +203,9 @@ const ResultsModal: React.FC<ResultsModalProps> = ({
                   </h3>
                   {expandedSection === "suggestions" && (
                     <p className="text-base text-gray-300">
-                      {suggestions ? suggestions.details : "No suggestions available."}
+                      {suggestions
+                        ? suggestions.details
+                        : "No suggestions available."}
                     </p>
                   )}
                 </div>
@@ -202,7 +224,6 @@ const ResultsModal: React.FC<ResultsModalProps> = ({
 };
 
 export default ResultsModal;
-
 
 // import React, { useState } from "react";
 // import { Dialog } from "@headlessui/react";
@@ -332,7 +353,7 @@ export default ResultsModal;
 //                       <IconCircleCheck size={24} />
 //                     )}
 //                   </h3>
-//                   {expandedSection === "metricScores" && (            
+//                   {expandedSection === "metricScores" && (
 //                     <div className="grid grid-col-1 md:grid-col-3 gap-6">
 //                       {results.find((r:any)=> r.section === 'Metric Scores').details.map((metric: any,metricIndex:number)=>{
 //                         let color;
@@ -341,12 +362,12 @@ export default ResultsModal;
 //                         else color= "#ffeb3b";
 
 //                         return  (
-//                           <div 
+//                           <div
 //                           key={metricIndex}
 //                           className="flex flex-col items-center"
 //                           >
 //                             <div className="w-24 b-24">
-//                               <CircularProgressbar 
+//                               <CircularProgressbar
 //                               value={metric.score*10}
 //                               text={`${metric.score}/10`}
 //                               strokeWidth={10}
@@ -400,5 +421,3 @@ export default ResultsModal;
 // };
 
 // export default ResultsModal;
-
-
