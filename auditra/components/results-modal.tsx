@@ -56,6 +56,10 @@ const ResultsModal: React.FC<ResultsModalProps> = ({
       ? results.find((r: any) => r.section === "Suggestions for Improvement")
       : null;
 
+  const transformedSuggestions = suggestions
+    ? suggestions.details.map((item: any) => item.suggestion)
+    : [];
+
   return (
     <Dialog
       open={isOpen}
@@ -201,14 +205,27 @@ const ResultsModal: React.FC<ResultsModalProps> = ({
                       <IconChevronDown size={24} />
                     )}
                   </h3>
+
                   {expandedSection === "suggestions" && (
-                    <p className="text-base text-gray-300">
-                      {suggestions
-                        ? suggestions.details
-                        : "No suggestions available."}
-                    </p>
+                    <div className="text-base text-gray-300">
+                      {suggestions && Array.isArray(suggestions.details) ? (
+                        <ul>
+                          {suggestions.details.map((item, index) => (
+                            <li key={index}>
+                              {/* If `item` is an object with a `suggestion` key, render that */}
+                              {typeof item === "object" && item.suggestion
+                                ? item.suggestion
+                                : item}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No suggestions available.</p>
+                      )}
+                    </div>
                   )}
                 </div>
+
                 <div className="flex justify-end">
                   <button onClick={closeModal} className="text-red-500">
                     Close
