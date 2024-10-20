@@ -9,34 +9,22 @@ export default function Header() {
   return (
     <WavyBackground className="flex flex-col justify-center items-center min-h-screen max-w-4xl mx-auto pb-20">
       <p
-        style={{
-          fontSize: isDesktop ? 48 : isTablet ? 36 : 28,
-          lineHeight: 1.2,
-          fontWeight: 900, /* increased font weight for extra boldness */
-        }}
-        className="text-white font-bold inter-var text-center"
+        className={`text-white font-bold inter-var text-center ${isDesktop ? 'text-6xl' : isTablet ? 'text-4xl' : 'text-3xl'} font-extrabold`}
       >
         Auditra, AI Smart Contract
       </p>
       <p
-        style={{
-          fontSize: isDesktop ? 48 : isTablet ? 36 : 28,
-          lineHeight: 1.2,
-          fontWeight: 900, /* increased font weight for extra boldness */
-        }}
-        className="text-white font-bold inter-var text-center"
+        className={`text-white font-bold inter-var text-center ${isDesktop ? 'text-6xl' : isTablet ? 'text-4xl' : 'text-3xl'} font-extrabold`}
       >
         Auditor
       </p>
       <p
-        style={{
-          fontSize: isDesktop ? 24 : isTablet ? 20 : 18,
-          lineHeight: 1.2,
-        }}
-        className="text-white font-normal inter-var text-center mt-4"
+        className={`text-white font-normal inter-var text-center mt-4 ${isDesktop ? 'text-2xl' : isTablet ? 'text-xl' : 'text-lg'}`}
       >
         Leverage the power of AI to audit your smart contracts
       </p>
     </WavyBackground>
   );
 }
+
+

@@ -9,7 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
     "@headlessui/react": "^2.1.10",
+    "@mui/icons-material": "^6.1.4",
+    "@mui/material": "^6.1.4",
     "@tabler/icons-react": "^3.19.0",
     "axios": "^1.7.7",
     "clsx": "^2.1.1",

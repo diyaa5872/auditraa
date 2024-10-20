@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import Editor from "react-simple-code-editor";
 import Prism from "prismjs";
+import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
 import "prismjs/components/prism-solidity";
 import "prismjs/themes/prism-tomorrow.css"; // Import a Prism theme for styling
 import { IconChecklist, IconPaperclip } from "@tabler/icons-react";
@@ -27,24 +29,33 @@ const CustomCodeEditor: React.FC<CustomCodeEditorProps> = ({
   setContract,
   analyze,
 }) => {
+  const [showAlert, setShowAlert] = useState(false); // State for showing the error alert
+
   const handleAnalyze = () => {
     if (!isValidSolidityContract(contract)) {
-      alert(
-        "The provided code does not appear to be a valid Solidity smart contract. Make sure it starts with the SPDX license identifier and the 'pragma' directive."
-      );
+      setShowAlert(true); // Show alert when contract is invalid
       return;
     }
+    setShowAlert(false); // Hide alert if contract is valid
     analyze();
   };
 
   return (
     <div className="relative lg:w-4/6 w-full mx-auto">
+      {showAlert && (
+        <Stack sx={{ width: '100%' }} spacing={2}>
+          <Alert severity="error">
+            The provided code does not appear to be a valid Solidity smart contract. Make sure it starts with the SPDX license identifier and the 'pragma' directive.
+          </Alert>
+        </Stack>
+      )}
+
       <div
         className="border outline-none border-r-2 border-gray-300 rounded-2xl p-6"
         style={{
           height: "450px",
           overflowY: "auto",
-          backgroundColor: "#3B3C36", // Change this to black olive (#3B3C36)
+          backgroundColor: "#3B3C36",
         }}
       >
         <Editor
@@ -64,21 +75,30 @@ const CustomCodeEditor: React.FC<CustomCodeEditorProps> = ({
           }}
         />
       </div>
-      <div className="absolute bottom-px inset-x-px p-2 rounded-b-md bg-neutral-900" >
-          <div className="flex justify-between items-center pb-3">
-            <div className="flex items-center">
-              <button type="button" className="inline-flex flex-shrink-0 justify-center items-center size-8 rounded-lg text-gray-500 focus:z-10 focus:outline-noe focus:ring-2 focus:ring-blue-500 text-neutral-500">
-                <IconPaperclip />
-              </button>
-            </div>
-            <div className="flex items-center cursor-pointer gap-x1">
-              <button type="button"
-               onClick={handleAnalyze}
-               className=" px-6 py-1.5 flex rounded-full flex-row bg-blue-600 flex-shrink-0 justify-center items-center size-8 rounded-lg  text-white text-neutral-500">
-                <span><IconChecklist size={20} /></span> 
-              </button>
-            </div>
+
+      <div className="absolute bottom-px inset-x-px p-2 rounded-b-md bg-neutral-900">
+        <div className="flex justify-between items-center pb-3">
+          <div className="flex items-center">
+            <button
+              type="button"
+              className="inline-flex flex-shrink-0 justify-center items-center size-8 rounded-lg text-gray-500 focus:z-10 focus:outline-noe focus:ring-2 focus:ring-blue-500 text-neutral-500"
+            >
+              <IconPaperclip />
+            </button>
           </div>
+
+          <div className="flex items-center cursor-pointer gap-x1">
+            <button
+              type="button"
+              onClick={handleAnalyze}
+              className=" px-6 py-1.5 flex rounded-full flex-row bg-blue-600 flex-shrink-0 justify-center items-center size-8 rounded-lg  text-white text-neutral-500"
+            >
+              <span>
+                <IconChecklist size={20} />
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

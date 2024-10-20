@@ -63,7 +63,7 @@ export const analyzeContract = async (
           },
           {
             "section": "Suggestions for Improvement",
-            "details": "Here are some suggestions for improving the smart contract. Give only 4 major suggestions and all 4 suggestions in a single array."
+            "details": "Here are some suggestions for improving the smart contract. Give only Four(4) major suggestions and all 4 suggestions in a single array."
           }
         ],
 
